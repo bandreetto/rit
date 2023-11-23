@@ -1,4 +1,5 @@
 import logging
+from uuid import UUID, uuid4
 from shutil import rmtree
 from tempfile import mkdtemp
 from time import sleep
@@ -10,10 +11,14 @@ from src.utils import find_free_port
 
 
 class Proxy(NamedTuple):
+    id: UUID
     url: str
     port: str
     control_port: str
     data_dir: str
+
+
+proxies = {}
 
 
 def create_proxy() -> Proxy:
@@ -43,9 +48,16 @@ def create_proxy() -> Proxy:
         logging.info(f"Socks port: {socks_port}")
         logging.info(f"Control port: {control_port}")
 
-        return Proxy(
-            f"socks5://localhost:{socks_port}", socks_port, control_port, data_dir
+        proxy = Proxy(
+            uuid4(),
+            f"socks5://localhost:{socks_port}",
+            socks_port,
+            control_port,
+            data_dir,
         )
+        proxies[proxy.id.hex] = proxy
+
+        return proxy
     except Exception as e:
         logging.warn(
             "Something wen't wrong on proxy creation, cleaning up data directory"
@@ -55,7 +67,14 @@ def create_proxy() -> Proxy:
         raise e
 
 
-def kill_proxy(proxy: Proxy):
+def kill_proxy(proxy_id: str):
+    proxy = proxies[proxy_id]
+    if not proxy:
+        logging.warn(
+            f"Could not kill proxy because there is no proxy with id {proxy_id}"
+        )
+        return
+
     try:
         logging.info(f"Trying to kill proxy allocated on port {proxy.port}")
         logging.info("Killing tor process")

@@ -45,6 +45,10 @@ class ProxyServiceTests(unittest.TestCase):
 
         self.assertEqual(proxy_ip["countryCode"], "BR")
 
+    def text_destroy_inexistent_proxy(self):
+        kill_proxy("some random string")
+        pass
+
     def test_destroy_proxy(self):
         proxy = self.proxy
 
@@ -53,7 +57,7 @@ class ProxyServiceTests(unittest.TestCase):
         ).text
         self.assertRegex(ip, ip_regex)
 
-        kill_proxy(proxy)
+        kill_proxy(proxy.id.hex)
         self.proxy = None  # type: ignore
 
         sleep(1)
@@ -62,7 +66,7 @@ class ProxyServiceTests(unittest.TestCase):
 
     def tearDown(self) -> None:
         if self.proxy:
-            kill_proxy(self.proxy)
+            kill_proxy(self.proxy.id.hex)
 
 
 if __name__ == "__main__":
