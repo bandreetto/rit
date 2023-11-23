@@ -31,7 +31,6 @@ class ProxyServiceTests(unittest.TestCase):
             "http://ifcfg.me", proxies={"http": proxy.url, "https": proxy.url}
         ).text
 
-        print(my_ip, proxy_ip)
         self.assertRegex(my_ip, ip_regex)
         self.assertRegex(proxy_ip, ip_regex)
         self.assertNotEqual(my_ip, proxy_ip)
