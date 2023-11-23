@@ -1,6 +1,7 @@
 import logging
 from shutil import rmtree
 from tempfile import mkdtemp
+from time import sleep
 from typing import NamedTuple
 from stem.control import Controller, Signal
 from stem.process import launch_tor_with_config
@@ -32,6 +33,7 @@ def create_proxy() -> Proxy:
                 "ControlPort": str(control_port),
                 "SOCKSPort": str(socks_port),
                 "DataDirectory": data_dir,
+                "ExitNodes": "{BR}",
             },
             init_msg_handler=logging.info,
             take_ownership=True,
@@ -54,13 +56,23 @@ def create_proxy() -> Proxy:
 
 
 def kill_proxy(proxy: Proxy):
-    logging.info(f"Trying to kill proxy allocated on port {proxy.port}")
-    logging.info("Killing tor process")
-    with Controller.from_port(port=proxy.control_port) as controller:
-        controller.authenticate()
-        controller.signal(Signal.SHUTDOWN)  # type: ignore
-    logging.info("Tor process killed successfully!")
+    try:
+        logging.info(f"Trying to kill proxy allocated on port {proxy.port}")
+        logging.info("Killing tor process")
+        with Controller.from_port(port=proxy.control_port) as controller:
+            controller.authenticate()
+            controller.signal(Signal.SHUTDOWN)  # type: ignore
+        logging.info("Tor process killed successfully!")
 
-    logging.info(f"Removing proxy data directory {proxy.data_dir}")
-    rmtree(proxy.data_dir)
-    logging.info(f"Data directory removed {proxy.data_dir} successfully!")
+        # wait for tor process to be fully killed
+        sleep(1)
+
+        logging.info(f"Removing proxy data directory {proxy.data_dir}")
+        rmtree(proxy.data_dir)
+        logging.info(f"Data directory removed {proxy.data_dir} successfully!")
+    except Exception as e:
+        logging.warn(
+            "Something went wrong trying to kill the Tor proxy, "
+            "some resources may not have been correctly freed"
+        )
+        raise e

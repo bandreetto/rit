@@ -1,5 +1,6 @@
 import unittest
 from src import app
+from src.proxy.service import kill_proxy
 
 
 class ProxyRoutesTests(unittest.TestCase):
@@ -10,7 +11,7 @@ class ProxyRoutesTests(unittest.TestCase):
         response = self.app.get("/api/proxy")
 
         self.assertEqual(response.status_code, 200)
-        self.assertRegex(response.data["proxy"], r"socks5:\/\/.+")
+        self.assertRegex(response.get_json()["proxy"], r"socks5:\/\/.+")
 
 
 if __name__ == "__main__":

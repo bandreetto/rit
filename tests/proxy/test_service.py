@@ -1,3 +1,4 @@
+from time import sleep
 import unittest
 import requests
 from stem.control import os
@@ -37,13 +38,12 @@ class ProxyServiceTests(unittest.TestCase):
 
     def test_proxy_should_have_BR_ip(self):
         proxy = self.proxy
-
-        my_ip = requests.get("http://ip-api.com").text
-        print(my_ip)
         proxy_ip = requests.get(
-            "http://ip-api.com", proxies={"http": proxy.url, "https": proxy.url}
-        ).text
-        print(proxy_ip)
+            "http://ip-api.com/json",
+            proxies={"http": proxy.url, "https": proxy.url},
+        ).json()
+
+        self.assertEqual(proxy_ip["countryCode"], "BR")
 
     def test_destroy_proxy(self):
         proxy = self.proxy
@@ -56,6 +56,7 @@ class ProxyServiceTests(unittest.TestCase):
         kill_proxy(proxy)
         self.proxy = None  # type: ignore
 
+        sleep(1)
         self.assertFalse(is_port_in_use(proxy.port))
         self.assertFalse(os.path.exists(proxy.data_dir))
 

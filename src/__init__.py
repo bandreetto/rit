@@ -1,5 +1,5 @@
 from flask import Flask
-from .proxy.routes import proxy_blueprint
+from .proxy import proxy_blueprint
 
 app = Flask(__name__)
 
