@@ -14,4 +14,4 @@ def get_proxy():
 @proxy_blueprint.route("/api/proxy/<id>", methods=["DELETE"])
 def delete_proxy(id: str):
     kill_proxy(id)
-    return f"Proxy {id} deleted"
+    return f"Proxy {id} deleted\n"
