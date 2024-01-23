@@ -7,6 +7,7 @@ A restful http services to create and manage socks5 proxies using the TOR networ
 ### Requirements
 You must have [tor](https://github.com/torproject/tor) installed on the host machine.
 
+### Installing dependencies
 ```shell
 $ pipenv install --dev
 ```
