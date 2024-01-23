@@ -2,7 +2,7 @@
 
 A restful http services to create and manage socks5 proxies using the TOR network
 
-## Instalation
+## Installation
 
 ### Requirements
 You must have [tor](https://github.com/torproject/tor) installed on the host machine.
